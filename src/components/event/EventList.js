@@ -25,6 +25,7 @@ export const EventList = (props) => {
                     return <section key={event.id} className="registration">
                         <div className="registration__game">{event.game.name}</div>
                         <div>{event.description}</div>
+                        <div>{event.attendee_count}</div>
                         <div>
                             {
                                 new Date(event.date).toLocaleDateString("en-US",

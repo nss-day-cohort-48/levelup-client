@@ -1,12 +1,15 @@
 import React, { useContext, useState, useEffect } from "react"
 import { GameContext } from "./GameProvider.js"
 import { useHistory } from 'react-router-dom'
+import { useParams } from "react-router-dom/cjs/react-router-dom.min"
 
 
 export const GameForm = () => {
     const history = useHistory()
-    const { createGame, getGameTypes, gameTypes } = useContext(GameContext)
-
+    const { createGame, getGameTypes, gameTypes, getGame, updateGame } = useContext(GameContext)
+    const { gameId } = useParams()
+    const [game, setGame] = useState({})
+    const [isEdit, setIsEdit] = useState(false)
     /*
         Since the input fields are bound to the values of
         the properties of this state variable, you need to
@@ -27,6 +30,24 @@ export const GameForm = () => {
     useEffect(() => {
         getGameTypes()
     }, [])
+
+    useEffect(() => {
+        console.log('gameId', typeof gameId)
+        if (gameId) {
+            setIsEdit(true)
+            getGame(gameId).then((data) => {
+                console.log(data)
+                setCurrentGame({
+                    numberOfPlayers: data.number_of_players,
+                    name: data.name,
+                    gameTypeId: data.game_type,
+                    maker: data.maker,
+                    skillLevel: data.skill_level,
+                    description: data.description
+                })
+            })
+        }
+    }, [gameId])
 
     /*
         REFACTOR CHALLENGE START
@@ -158,8 +179,13 @@ export const GameForm = () => {
                     }
 
                     // Send POST request to your API
-                    createGame(game)
-                        .then(() => history.push("/games"))
+                    if (isEdit) {
+                        game.id = gameId
+                        updateGame(game).then(() => history.push("/"))
+                    } else {
+                        createGame(game)
+                            .then(() => history.push("/"))
+                    }
                 }}
                 className="btn btn-primary">Create</button>
         </form>
